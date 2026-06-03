@@ -40,8 +40,10 @@ func main() {
 	go monitor.Start(config.AppConfig.Monitoring.Interval)
 	r := gin.Default()
 	r.Use(CORSMiddleware())
+	r.GET("/health", h.HealthCheck)
 	api := r.Group("/api/v1")
 	{
+		api.GET("/health", h.HealthCheck)
 		metrics := api.Group("/metrics")
 		{
 			metrics.GET("", h.GetMetrics)
@@ -84,7 +86,17 @@ func main() {
 
 func CORSMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+		origin := c.Request.Header.Get("Origin")
+		allowedOrigins := []string{
+			"http://localhost:3000",
+			"http://localhost:5173",
+		}
+		for _, allowedOrigin := range allowedOrigins {
+			if origin == allowedOrigin {
+				c.Writer.Header().Set("Access-Control-Allow-Origin", origin)
+				break
+			}
+		}
 		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
 		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
 		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT, DELETE")

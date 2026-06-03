@@ -11,3 +11,4 @@ require (
 	go.uber.org/zap v1.26.0
 	github.com/google/uuid v1.4.0
 )
+

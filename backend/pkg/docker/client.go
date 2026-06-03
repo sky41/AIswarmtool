@@ -2,7 +2,8 @@ package docker
 
 import (
 	"context"
-	"fmt"
+	"encoding/json"
+	"io"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/client"
 )
@@ -40,8 +41,15 @@ func (c *Client) GetContainerStats(ctx context.Context, containerID string) (*ty
 		return nil, err
 	}
 	defer stats.Body.Close()
-	var statsJSON := &types.StatsJSON{}
-	return statsJSON, nil
+	body, err := io.ReadAll(stats.Body)
+	if err != nil {
+		return nil, err
+	}
+	var statsJSON types.StatsJSON
+	if err := json.Unmarshal(body, &statsJSON); err != nil {
+		return nil, err
+	}
+	return &statsJSON, nil
 }
 
 func (c *Client) RestartContainer(ctx context.Context, containerID string) error {
@@ -50,10 +58,13 @@ func (c *Client) RestartContainer(ctx context.Context, containerID string) error
 }
 
 func (c *Client) DrainNode(ctx context.Context, nodeID string) error {
-	nodeSpec := types.NodeSpec{
-		Availability: types.NodeAvailabilityDrain,
+	node, _, err := c.cli.NodeInspectWithRaw(ctx, nodeID)
+	if err != nil {
+		return err
 	}
-	_, err := c.cli.NodeUpdate(ctx, nodeID, types.NodeUpdateOptions{Version: types.Version{}, Spec: nodeSpec})
+	nodeSpec := node.Spec
+	nodeSpec.Availability = types.NodeAvailabilityDrain
+	_, err = c.cli.NodeUpdate(ctx, nodeID, types.NodeUpdateOptions{Version: node.Version, Spec: nodeSpec})
 	return err
 }
 

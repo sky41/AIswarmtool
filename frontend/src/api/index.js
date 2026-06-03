@@ -3,6 +3,34 @@ const api = axios.create({
   baseURL: '/api/v1',
   timeout: 10000
 })
+api.interceptors.request.use(
+  config => {
+    return config
+  },
+  error => {
+    return Promise.reject(error)
+  }
+)
+api.interceptors.response.use(
+  response => {
+    return response
+  },
+  error => {
+    if (error.response) {
+      const { status } = error.response
+      if (status === 401) {
+        console.error('认证失败，请重新登录')
+      } else if (status === 500) {
+        console.error('服务器错误，请稍后重试')
+      }
+    } else if (error.request) {
+      console.error('网络错误，请检查网络连接')
+    } else {
+      console.error('请求配置错误', error.message)
+    }
+    return Promise.reject(error)
+  }
+)
 export const metricsApi = {
   getMetrics: (params) => api.get('/metrics', { params }),
   getLatestMetrics: (type) => api.get('/metrics/latest', { params: { type } })
