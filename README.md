@@ -59,9 +59,10 @@ AIswarmtool/
    - 监控大盘可视化
    - 告警与事件中心
    - 策略配置管理
-![监控大盘](docs/monitoring_dashboard.png)
-![告警与事件中心](docs/alerts_events.png)
-![策略配置管理](docs/policy_management.png)
+
+![监控大盘](docs/images/monitoring_dashboard.png)
+![告警与事件中心](docs/images/alerts_events.png)
+![策略配置管理](docs/images/policy_management.png)
 ## 快速开始
 
 ### 1. 数据库初始化
