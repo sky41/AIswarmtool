@@ -44,3 +44,7 @@ yarn-error.log*
 # Config (local)
 config.yaml
 config.yml
+
+# Markdown files (except README.md)
+*.md
+!README.md
