@@ -1,0 +1,382 @@
+openapi: 3.0.0
+info:
+  title: Docker Swarm Monitoring & Self-Healing API
+  version: 1.0.0
+  description: API for monitoring Docker Swarm clusters and automatic healing
+servers:
+  - url: http://localhost:8080
+    description: Local development server
+paths:
+  /api/v1/metrics:
+    get:
+      tags:
+      - Metrics
+      summary: Get monitoring metrics
+      parameters:
+        - name: type
+          in: query
+          schema:
+            type: string
+        - name: id
+          in: query
+          schema:
+            type: string
+        - name: start
+          in: query
+          schema:
+            type: string
+        - name: end
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful response
+  /api/v1/metrics/latest:
+    get:
+      tags:
+      - Metrics
+      summary: Get latest metrics
+      parameters:
+        - name: type
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+  /api/v1/alerts:
+    get:
+      tags:
+      - Alerts & Incidents
+      summary: Get incidents
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+        - name: start
+          in: query
+          schema:
+            type: string
+        - name: end
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful response
+  /api/v1/alerts/rules:
+    get:
+      tags:
+      - Alerts & Incidents
+      summary: Get alert rules
+      parameters:
+        - name: enabled_only
+          in: query
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: Successful response
+    post:
+      tags:
+      - Alerts & Incidents
+      summary: Create alert rule
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AlertRule'
+      responses:
+        '201':
+          description: Created
+  /api/v1/alerts/rules/{id}:
+    get:
+      tags:
+      - Alerts & Incidents
+      summary: Get alert rule by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful response
+    put:
+      tags:
+      - Alerts & Incidents
+      summary: Update alert rule
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AlertRule'
+      responses:
+        '200':
+          description: Successful response
+    delete:
+      tags:
+      - Alerts & Incidents
+      summary: Delete alert rule
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful response
+  /api/v1/alerts/{id}:
+    get:
+      tags:
+      - Alerts & Incidents
+      summary: Get incident by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful response
+  /api/v1/alerts/{id}/acknowledge:
+    post:
+      tags:
+      - Alerts & Incidents
+      summary: Acknowledge incident
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful response
+  /api/v1/alerts/{id}/resolve:
+    post:
+      tags:
+      - Alerts & Incidents
+      summary: Resolve incident
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful response
+  /api/v1/healing/policies:
+    get:
+      tags:
+      - Self-Healing
+      summary: Get healing policies
+      parameters:
+        - name: enabled_only
+          in: query
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: Successful response
+    post:
+      tags:
+      - Self-Healing
+      summary: Create healing policy
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SelfHealingPolicy'
+      responses:
+        '201':
+          description: Created
+  /api/v1/healing/policies/{id}:
+    get:
+      tags:
+      - Self-Healing
+      summary: Get healing policy by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful response
+    put:
+      tags:
+      - Self-Healing
+      summary: Update healing policy
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SelfHealingPolicy'
+      responses:
+        '200':
+          description: Successful response
+    delete:
+      tags:
+      - Self-Healing
+      summary: Delete healing policy
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful response
+  /api/v1/healing/executions:
+    get:
+      tags:
+      - Self-Healing
+      summary: Get healing executions
+      parameters:
+        - name: incident_id
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+  /api/v1/cluster:
+    get:
+      tags:
+      - Cluster
+      summary: Get cluster info
+      responses:
+        '200':
+          description: Successful response
+  /api/v1/cluster/nodes:
+    get:
+      tags:
+      - Cluster
+      summary: Get nodes
+      responses:
+        '200':
+          description: Successful response
+  /api/v1/cluster/services:
+    get:
+      tags:
+      - Cluster
+      summary: Get services
+      responses:
+        '200':
+          description: Successful response
+components:
+  schemas:
+    AlertRule:
+      type: object
+      properties:
+        id:
+          type: integer
+        rule_name:
+          type: string
+        rule_desc:
+          type: string
+        metric_type:
+          type: string
+        resource_type:
+          type: string
+        condition:
+          type: string
+        threshold:
+          type: number
+        duration:
+          type: integer
+        severity:
+          type: string
+        enabled:
+          type: boolean
+    SelfHealingPolicy:
+      type: object
+      properties:
+        id:
+          type: integer
+        policy_name:
+          type: string
+        policy_desc:
+          type: string
+        trigger_condition:
+          type: string
+        action_type:
+          type: string
+        action_params:
+          type: object
+        max_retries:
+          type: integer
+        retry_delay:
+          type: integer
+        enabled:
+          type: boolean
+    IncidentLog:
+      type: object
+      properties:
+        id:
+          type: integer
+        incident_id:
+          type: string
+        resource_type:
+          type: string
+        resource_id:
+          type: string
+        severity:
+          type: string
+        status:
+          type: string
+        description:
+          type: string
+    MetricsHistory:
+      type: object
+      properties:
+        id:
+          type: integer
+        metric_type:
+          type: string
+        resource_id:
+          type: string
+        resource_name:
+          type: string
+        cpu_usage:
+          type: number
+        memory_usage:
+          type: number
+        status:
+          type: string
+        collected_at:
+          type: string
+          format: date-time

@@ -1,0 +1,172 @@
+{
+  "project_name": "Docker Swarm 监控与自愈系统",
+  "version": "1.0.0",
+  "description": "基于 Docker Swarm 集群的实时监控与故障自愈智能运维系统",
+  "tech_stack": {
+    "backend": "Go",
+    "frontend": "Vue",
+    "database": "MySQL"
+  },
+  "core_modules": [
+    {
+      "module_id": "monitoring",
+      "module_name": "集群监控模块",
+      "description": "实时监控 Swarm 集群节点与容器的运行状态及资源使用率",
+      "features": [
+        {
+          "feature_id": "node_monitor",
+          "feature_name": "节点监控",
+          "description": "采集节点 CPU、内存、磁盘使用率及运行状态",
+          "inputs": ["node_id", "node_name"],
+          "outputs": ["cpu_usage", "memory_usage", "disk_usage", "status"]
+        },
+        {
+          "feature_id": "container_monitor",
+          "feature_name": "容器监控",
+          "description": "采集容器 CPU、内存、网络、磁盘IO指标",
+          "inputs": ["container_id", "service_name"],
+          "outputs": ["cpu_usage", "memory_usage", "network_rx", "network_tx", "status"]
+        }
+      ]
+    },
+    {
+      "module_id": "alerting",
+      "module_name": "告警模块",
+      "description": "基于预设规则自动检测异常并触发告警",
+      "features": [
+        {
+          "feature_id": "alert_rule_config",
+          "feature_name": "告警规则配置",
+          "description": "支持自定义告警阈值、持续时间、通知方式",
+          "inputs": ["rule_name", "metric_type", "threshold", "duration", "notification"],
+          "outputs": ["rule_id", "status"]
+        },
+        {
+          "feature_id": "alert_engine",
+          "feature_name": "告警判定引擎",
+          "description": "实时评估监控数据，触发告警条件判断",
+          "inputs": ["metric_data", "alert_rules"],
+          "outputs": ["alerts", "incident_id"]
+        }
+      ]
+    },
+    {
+      "module_id": "self_healing",
+      "module_name": "自愈模块",
+      "description": "自动执行故障修复策略",
+      "features": [
+        {
+          "feature_id": "healing_policy_config",
+          "feature_name": "自愈策略配置",
+          "description": "配置自愈动作（重启、回滚、Drain等）",
+          "inputs": ["policy_name", "trigger_condition", "action", "params"],
+          "outputs": ["policy_id", "status"]
+        },
+        {
+          "feature_id": "healing_executor",
+          "feature_name": "自愈执行器",
+          "description": "执行自愈动作并记录执行结果",
+          "inputs": ["incident_id", "policy_id"],
+          "outputs": ["execution_result", "status"]
+        }
+      ]
+    },
+    {
+      "module_id": "system_health",
+      "module_name": "系统健康检查",
+      "description": "监控系统自身的健康状态",
+      "features": [
+        {
+          "feature_id": "self_health_check",
+          "feature_name": "自健康检查",
+          "description": "定期检查系统各组件运行状态",
+          "inputs": [],
+          "outputs": ["health_status", "components"]
+        }
+      ]
+    }
+  ],
+  "api_spec": {
+    "endpoints": [
+      {
+        "path": "/api/v1/metrics",
+        "method": "GET",
+        "description": "获取监控指标数据",
+        "params": ["node_id", "container_id", "start_time", "end_time"],
+        "response": "metrics_list"
+      },
+      {
+        "path": "/api/v1/alerts",
+        "method": "GET",
+        "description": "获取告警列表",
+        "params": ["status", "start_time", "end_time"],
+        "response": "alerts_list"
+      },
+      {
+        "path": "/api/v1/alerts/rules",
+        "method": "GET",
+        "description": "获取告警规则",
+        "params": [],
+        "response": "rules_list"
+      },
+      {
+        "path": "/api/v1/alerts/rules",
+        "method": "POST",
+        "description": "创建告警规则",
+        "params": ["rule"],
+        "response": "rule_id"
+      },
+      {
+        "path": "/api/v1/incidents",
+        "method": "GET",
+        "description": "获取故障事件记录",
+        "params": ["status", "start_time", "end_time"],
+        "response": "incidents_list"
+      },
+      {
+        "path": "/api/v1/healing/policies",
+        "method": "GET",
+        "description": "获取自愈策略",
+        "params": [],
+        "response": "policies_list"
+      },
+      {
+        "path": "/api/v1/healing/policies",
+        "method": "POST",
+        "description": "创建自愈策略",
+        "params": ["policy"],
+        "response": "policy_id"
+      },
+      {
+        "path": "/api/v1/cluster/nodes",
+        "method": "GET",
+        "description": "获取集群节点列表",
+        "params": [],
+        "response": "nodes_list"
+      },
+      {
+        "path": "/api/v1/cluster/services",
+        "method": "GET",
+        "description": "获取服务列表",
+        "params": [],
+        "response": "services_list"
+      }
+    ]
+  },
+  "non_functional_requirements": [
+    {
+      "type": "performance",
+      "description": "监控数据采集频率不低于每10秒一次",
+      "constraint": "采集延迟 < 2秒"
+    },
+    {
+      "type": "availability",
+      "description": "系统可用性达到 99.9%",
+      "constraint": "单节点故障不影响整体监控"
+    },
+    {
+      "type": "scalability",
+      "description": "支持至少100个节点、1000个容器的集群规模"
+    }
+  ]
+}
